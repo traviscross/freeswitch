@@ -111,10 +111,10 @@ $(RECURSIVE_TARGETS): freeswitch
 
 CORE_CFLAGS  = $(AM_LIBAPR_CFLAGS) $(AM_LIBAPR_CPPFLAGS)
 CORE_CFLAGS += $(AM_LIBAPU_CPPFLAGS)
+CORE_CFLAGS += $(PCRE_CFLAGS)
 CORE_CFLAGS += -I$(switch_srcdir)/libs/libtpl-1.5/src
 CORE_CFLAGS += -I$(switch_srcdir)/libs/stfu
 CORE_CFLAGS += -I$(switch_builddir)/libs/sqlite
-CORE_CFLAGS += -I$(switch_srcdir)/libs/pcre
 CORE_CFLAGS += -I$(switch_srcdir)/libs/speex/include -Ilibs/speex/include
 CORE_CFLAGS += -I$(switch_srcdir)/libs/srtp/include
 CORE_CFLAGS += -I$(switch_srcdir)/libs/srtp/crypto/include -Ilibs/srtp/crypto/include
@@ -122,7 +122,8 @@ CORE_CFLAGS += -I$(switch_srcdir)/libs/spandsp/src -I$(switch_srcdir)/libs/tiff-
 
 APR_LIBS   = $(AM_LIBAPU_LIBS) $(AM_LIBAPR_LIBS)
 CORE_LIBS  = libs/apr-util/libaprutil-1.la libs/apr/libapr-1.la
-CORE_LIBS += libs/sqlite/libsqlite3.la libs/pcre/libpcre.la libs/speex/libspeex/libspeexdsp.la libs/speex/libspeex/libspeex.la
+CORE_LIBS += libs/sqlite/libsqlite3.la libs/speex/libspeex/libspeexdsp.la libs/speex/libspeex/libspeex.la
+CORE_LIBS += $(PCRE_LIBS)
 
 if ENABLE_SRTP
 CORE_CFLAGS += -DENABLE_SRTP
@@ -505,7 +506,7 @@ libs/sqlite/Makefile: libs/sqlite/configure.ac
 	cd libs/sqlite && ./config.status
 	@$(TOUCH_TARGET)
 
-libs/pcre/libpcre.la: libs/pcre libs/pcre/.update
+$(switch_builddir)/libs/pcre/libpcre.la: libs/pcre/.update
 	touch src/include/switch.h
 	@cd libs/pcre && $(MAKE)
 	@$(TOUCH_TARGET)
