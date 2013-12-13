@@ -38,6 +38,11 @@ LIBCURL_CPPFLAGS=@LIBCURL_CPPFLAGS@
 CURL_DIR=$(switch_srcdir)/libs/curl
 CURLLA=$(switch_builddir)/libs/curl/lib/libcurl.la
 
+PCRE_LIBS=@PCRE_LIBS@
+PCRE_CFLAGS=@PCRE_CFLAGS@
+PCRE_DIR=$(switch_srcdir)/libs/pcre
+PCRE_BUILDDIR=$(switch_builddir)/libs/pcre
+
 OPENSSL_LIBS=@openssl_LIBS@
 OPENSSL_CFLAGS=@openssl_CFLAGS@
 
@@ -124,6 +129,10 @@ Makefile:
 
 $(CURLLA):
 	@cd $(CURL_DIR) && $(MAKE)
+
+$(PCRE_BUILDDIR)/lib/libpcre.la: $(PCRE_DIR) $(PCRE_DIR)/.update
+	@cd $(PCRE_BUILDDIR) && $(MAKE)
+	@$(TOUCH_TARGET)
 
 LINK_OUTPUT_REDIR=> .libs/$(MODNAME).log || error="yes" ; \
 			if test -n "$(VERBOSE)" -o "$$error" = "yes"; then \
