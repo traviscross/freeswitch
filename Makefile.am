@@ -113,18 +113,18 @@ CORE_CFLAGS  = $(AM_LIBAPR_CFLAGS) $(AM_LIBAPR_CPPFLAGS)
 CORE_CFLAGS += $(AM_LIBAPU_CPPFLAGS)
 CORE_CFLAGS += $(PCRE_CFLAGS)
 CORE_CFLAGS += $(SPEEXDSP_CFLAGS) $(SPEEX_CFLAGS)
+CORE_CFLAGS += $(SQLITE_CFLAGS)
 CORE_CFLAGS += -I$(switch_srcdir)/libs/libtpl-1.5/src
 CORE_CFLAGS += -I$(switch_srcdir)/libs/stfu
-CORE_CFLAGS += -I$(switch_builddir)/libs/sqlite
 CORE_CFLAGS += -I$(switch_srcdir)/libs/srtp/include
 CORE_CFLAGS += -I$(switch_srcdir)/libs/srtp/crypto/include -Ilibs/srtp/crypto/include
 CORE_CFLAGS += -I$(switch_srcdir)/libs/spandsp/src -I$(switch_srcdir)/libs/tiff-4.0.2/libtiff
 
 APR_LIBS   = $(AM_LIBAPU_LIBS) $(AM_LIBAPR_LIBS)
 CORE_LIBS  = libs/apr-util/libaprutil-1.la libs/apr/libapr-1.la
-CORE_LIBS += libs/sqlite/libsqlite3.la
 CORE_LIBS += $(PCRE_LIBS)
 CORE_LIBS += $(SPEEXDSP_LIBS) $(SPEEX_LIBS)
+CORE_LIBS += $(SQLITE_LIBS)
 
 if ENABLE_SRTP
 CORE_CFLAGS += -DENABLE_SRTP
@@ -314,6 +314,10 @@ if ENABLE_CPP
 libfreeswitch_la_SOURCES += src/switch_cpp.cpp
 endif
 
+if SYSTEM_SQLITE
+libfreeswitch_la_SOURCES += libs/sqlite/src/hash.c
+endif
+
 $(libfreeswitch_la_SOURCES): $(filter-out -%, $(CORE_LIBS)) $(switch_builddir)/quiet_libtool $(switch_builddir)/modules.conf
 
 src/include/switch_swigable_cpp.h: $(switch_srcdir)/src/include/switch_cpp.h
@@ -498,7 +502,7 @@ libs/speex/libspeex/libspeexdsp.la: libs/speex libs/speex/.update
 	@if [ $(MAKELEVEL) = 0 -o -z "`echo "$(MAKEARGS)" | grep  "j"`" ] ; then cd libs/speex && $(MAKE) $(MFLAGS); fi
 	@$(TOUCH_TARGET)
 
-libs/sqlite/libsqlite3.la: libs/sqlite libs/sqlite/Makefile libs/sqlite/.update
+$(switch_builddir)/libs/sqlite/libsqlite3.la: libs/sqlite libs/sqlite/Makefile libs/sqlite/.update
 	touch src/include/switch.h
 	@cd libs/sqlite && $(MAKE) CFLAGS="$(SWITCH_AM_CFLAGS)"
 	@$(TOUCH_TARGET)
