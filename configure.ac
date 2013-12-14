@@ -1139,6 +1139,28 @@ else
 	SPEEXDSP_LIBS="libs/speex/libspeex/libspeexdsp.la"
 fi
 
+AC_ARG_WITH(
+	[system-sqlite],
+	[AS_HELP_STRING([--with-system-sqlite], [Use system provided version of SQLite (default: no)])],
+	[with_system_sqlite="$withval"],
+	[with_system_sqlite="no"]
+)
+
+if test "$with_system_sqlite" != "no"; then
+	AC_MSG_WARN([Using a system provided version of SQLite is unsupported. If it blows up, you get to keep the pieces.])
+	PKG_CHECK_MODULES([SQLITE], [sqlite3])
+	save_LIBS="${LIBS}"
+	save_CPPFLAGS="${CPPFLAGS}"
+	LIBS="${SQLITE_LIBS}"
+	CPPFLAGS="${SQLITE_CFLAGS}"
+	AC_CHECK_FUNCS([sqlite3_initialize])
+	LIBS="${save_LIBS}"
+	CPPFLAGS="${save_CPPFLAGS}"
+else
+	SQLITE_CFLAGS="-I\$(switch_builddir)/libs/sqlite"
+	SQLITE_LIBS="\$(switch_builddir)/libs/sqlite/libsqlite3.la"
+fi
+
 AM_CONDITIONAL([HAVE_ODBC],[test "x$enable_core_odbc_support" != "xno"])
 AM_CONDITIONAL([HAVE_LIBEDIT],[test "x$enable_core_libedit_support" != "xno"])
 AM_CONDITIONAL([HAVE_MYSQL],[test "$found_mysql" = "yes"])
@@ -1487,7 +1509,9 @@ ac_configure_args="$ac_configure_args CONFIGURE_CFLAGS='$CFLAGS' CONFIGURE_CXXFL
 
 # Run configure in all the subdirs
 AC_CONFIG_SUBDIRS([libs/srtp])
-AC_CONFIG_SUBDIRS([libs/sqlite])
+if test "$with_system_sqlite" = "no"; then
+	AC_CONFIG_SUBDIRS([libs/sqlite])
+fi
 if test "$enable_core_libedit_support" = "yes" -a "$with_system_libedit" = "no"; then
     AC_CONFIG_SUBDIRS([libs/libedit])
 fi
