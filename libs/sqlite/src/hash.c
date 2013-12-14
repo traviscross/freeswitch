@@ -14,8 +14,14 @@
 **
 ** $Id: hash.c,v 1.18 2006/02/14 10:48:39 danielk1977 Exp $
 */
-#include "sqliteInt.h"
 #include <assert.h>
+
+#ifdef SYSTEM_SQLITE
+  #include "system_sqlite.c"
+  #include "hash.h"
+#else
+  #include "sqliteInt.h"
+#endif
 
 /* Turn bulk memory into a hash table object by initializing the
 ** fields of the Hash structure.
