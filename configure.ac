@@ -1106,6 +1106,24 @@ else
 	PCRE_LIBS="${switch_builddir}/libs/pcre/libpcre.la"
 fi
 
+AC_ARG_WITH(
+	[system-speex],
+	[AS_HELP_STRING([--with-system-speex], [Use system provided version of Speex (default: no)])],
+	[with_system_speex="$withval"],
+	[with_system_speex="no"]
+)
+
+if test "$with_system_speex" != "no"; then
+	AC_MSG_WARN([Using a system provided version of Speex is unsupported. If it blows up, you get to keep the pieces.])
+	PKG_CHECK_MODULES([SPEEX], [speex])
+	PKG_CHECK_MODULES([SPEEXDSP], [speexdsp])
+else
+	SPEEX_CFLAGS="-I${switch_srcdir}/libs/speex/include -Ilibs/speex/include"
+	SPEEX_LIBS="libs/speex/libspeex/libspeex.la"
+	SPEEXDSP_CFLAGS="${SPEEX_CFLAGS}"
+	SPEEXDSP_LIBS="libs/speex/libspeex/libspeexdsp.la"
+fi
+
 AM_CONDITIONAL([HAVE_ODBC],[test "x$enable_core_odbc_support" != "xno"])
 AM_CONDITIONAL([HAVE_LIBEDIT],[test "x$enable_core_libedit_support" != "xno"])
 AM_CONDITIONAL([HAVE_MYSQL],[test "$found_mysql" = "yes"])
@@ -1473,7 +1491,9 @@ AC_CONFIG_SUBDIRS([libs/js])
 AC_CONFIG_SUBDIRS([libs/libdingaling])
 AC_CONFIG_SUBDIRS([libs/libsndfile])
 AC_CONFIG_SUBDIRS([libs/sofia-sip])
-AC_CONFIG_SUBDIRS([libs/speex])
+if test "$with_system_speex" = "no"; then
+	AC_CONFIG_SUBDIRS([libs/speex])
+fi
 AC_CONFIG_SUBDIRS([libs/portaudio])
 AC_CONFIG_SUBDIRS([libs/openzap])
 AC_CONFIG_SUBDIRS([libs/freetdm])
