@@ -316,7 +316,7 @@ if ENABLE_CPP
 libfreeswitch_la_SOURCES += src/switch_cpp.cpp
 endif
 
-$(libfreeswitch_la_SOURCES): $(CORE_LIBS) $(switch_builddir)/quiet_libtool $(switch_builddir)/modules.conf  
+$(libfreeswitch_la_SOURCES): $(filter-out -%, $(CORE_LIBS)) $(switch_builddir)/quiet_libtool $(switch_builddir)/modules.conf
 
 src/include/switch_swigable_cpp.h: $(switch_srcdir)/src/include/switch_cpp.h
 	cat $(switch_srcdir)/src/include/switch_cpp.h | perl $(switch_srcdir)/build/strip.pl > $(switch_srcdir)/src/include/switch_swigable_cpp.h
@@ -612,7 +612,7 @@ nodepends: .nodepends
 yesdepends:
 	rm .nodepends
 
-core: $(switch_builddir)/modules.conf src/include/switch_version.h $(CORE_LIBS) 
+core: $(switch_builddir)/modules.conf src/include/switch_version.h $(filter-out -%, $(CORE_LIBS))
 	$(MAKE) $(AM_MAKEFLAGS) libfreeswitch.la
 
 distclean: clean
