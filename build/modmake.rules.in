@@ -133,7 +133,7 @@ LINK_OUTPUT_REDIR=> .libs/$(MODNAME).log || error="yes" ; \
 			  exit 1 ;\
 			 fi 
 
-$(MODNAME).$(LIBTOOL_LIB_EXTEN): $(LIBS) $(LOCAL_LIBADD) $(LOCAL_OBJS) $(OUR_OBJS) $(MODDIR)/$(SOURCEFILE) $(MODNAME).lo 
+$(MODNAME).$(LIBTOOL_LIB_EXTEN): $(LIBS) $(filter-out -%, $(LOCAL_LIBADD)) $(LOCAL_OBJS) $(OUR_OBJS) $(MODDIR)/$(SOURCEFILE) $(MODNAME).lo
 	@echo Creating $@...
 	@test -d .libs || mkdir .libs
 	@error="";\
