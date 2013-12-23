@@ -140,8 +140,8 @@ CORE_CFLAGS += -DSWITCH_HAVE_ODBC $(ODBC_INC_FLAGS)
 endif
 
 if HAVE_LIBEDIT
-CORE_CFLAGS += -I$(switch_srcdir)/libs/libedit/src -DSWITCH_HAVE_LIBEDIT
-CORE_LIBS   += libs/libedit/src/.libs/libedit.a
+CORE_CFLAGS += $(LIBEDIT_CFLAGS) -DSWITCH_HAVE_LIBEDIT
+CORE_LIBS   += $(LIBEDIT_LIBS)
 endif
 
 if ENABLE_TIMERFD_WRAPPER
@@ -341,8 +341,8 @@ fs_cli_CFLAGS  = $(AM_CFLAGS) -I$(switch_srcdir)/libs/esl/src/include
 fs_cli_LDFLAGS = $(AM_LDFLAGS) -lpthread $(ESL_LDFLAGS) -lm
 
 if HAVE_LIBEDIT
-fs_cli_CFLAGS += -DHAVE_EDITLINE -I$(switch_srcdir)/libs/libedit/src
-fs_cli_LDADD   = libs/libedit/src/.libs/libedit.a $(TINFO_LIBS)
+fs_cli_CFLAGS += $(LIBEDIT_CFLAGS) -DHAVE_EDITLINE
+fs_cli_LDADD   = $(LIBEDIT_LIBS)
 endif
 
 
@@ -390,8 +390,8 @@ freeswitch_LDFLAGS = $(AM_LDFLAGS) -lpthread -rpath $(libdir)
 freeswitch_LDADD   = libfreeswitch.la libs/apr/libapr-1.la
 
 if HAVE_LIBEDIT
-freeswitch_CFLAGS += -Ilibs/libedit/src -DSWITCH_HAVE_LIBEDIT
-freeswitch_LDADD  += libs/libedit/src/.libs/libedit.a $(TINFO_LIBS)
+freeswitch_CFLAGS += $(LIBEDIT_CFLAGS) -DSWITCH_HAVE_LIBEDIT
+freeswitch_LDADD  += $(LIBEDIT_LIBS)
 endif
 
 if HAVE_ODBC
@@ -463,7 +463,7 @@ src/include/switch_version.h: src/include/switch_version.h.in Makefile build/pri
 ##
 ## Dependency targets
 ##
-libs/libedit/src/.libs/libedit.a:
+$(switch_builddir)/libs/libedit/src/.libs/libedit.a:
 	cd libs/libedit && $(MAKE)
 
 libs/libzrtp/libzrtp.a:
