@@ -1054,20 +1054,35 @@ AM_CONDITIONAL([CURL_BUILTIN],[test "${ac_cv_use_system_curl}" != "yes"])
 AC_SUBST(LIBCURL_DEPS)
 
 
+AC_ARG_WITH(
+	[system-libedit],
+	[AS_HELP_STRING([--with-system-libedit], [Use system provided version of libedit (default: no)])],
+	[with_system_libedit="$withval"],
+	[with_system_libedit="no"]
+)
+
 AC_ARG_ENABLE(core-libedit-support,     
 	[AS_HELP_STRING([--disable-core-libedit-support], [Compile without libedit Support])], [enable_core_libedit_support="$enableval"], [enable_core_libedit_support="yes"])
 
 if test "$enable_core_libedit_support" = "yes" ; then
-    AC_CHECK_LIB(tinfo, tgetent, [have_libtinfo="yes"], [have_libtinfo="no"])
-    if test "$have_libtinfo" == "yes" ; then
-       TINFO_LIBS="-ltinfo"
-    else
-       TINFO_LIBS=""
-       AC_CHECK_LIB(ncurses, tgetent,,
-          [AC_CHECK_LIB(curses, tgetent,,
-	     [AC_MSG_ERROR([libtermcap, libcurses or libncurses are required!])] )] )
-    fi
-    AC_SUBST(TINFO_LIBS)
+	if test "$with_system_libedit" != "no"; then
+		AC_MSG_WARN([Using a system provided version of libedit is unsupported. If it blows up, you get to keep the pieces.])
+		PKG_CHECK_MODULES([LIBEDIT], [libedit])
+	else
+		AC_CHECK_LIB(tinfo, tgetent, [have_libtinfo="yes"], [have_libtinfo="no"])
+		if test "$have_libtinfo" == "yes" ; then
+			TINFO_LIBS="-ltinfo"
+  		else
+			TINFO_LIBS=""
+			AC_CHECK_LIB(ncurses, tgetent,,
+				[AC_CHECK_LIB(curses, tgetent,,
+					[AC_MSG_ERROR([libtermcap, libcurses or libncurses are required!])] )] )
+		fi
+		AC_SUBST(TINFO_LIBS)
+
+		LIBEDIT_CFLAGS="-I\$(switch_srcdir)/libs/libedit/src"
+		LIBEDIT_LIBS="\$(switch_builddir)/libs/libedit/src/.libs/libedit.a \$(TINFO_LIBS)"
+	fi
 fi
 
 SAC_OPENSSL
@@ -1470,7 +1485,7 @@ ac_configure_args="$ac_configure_args CONFIGURE_CFLAGS='$CFLAGS' CONFIGURE_CXXFL
 # Run configure in all the subdirs
 AC_CONFIG_SUBDIRS([libs/srtp])
 AC_CONFIG_SUBDIRS([libs/sqlite])
-if test "$enable_core_libedit_support" = "yes" ; then
+if test "$enable_core_libedit_support" = "yes" -a "$with_system_libedit" = "no"; then
     AC_CONFIG_SUBDIRS([libs/libedit])
 fi
 if test "$with_system_pcre" = "no"; then
