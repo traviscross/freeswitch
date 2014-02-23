@@ -286,6 +286,12 @@ Build-Depends:
  wget, pkg-config,
 # core codecs
  libogg-dev,
+# optional system libs
+ libpcre3-dev,
+ libspeex-dev,
+ libspeexdsp-dev,
+ libedit-dev,
+ libsqlite3-dev,
 # configure options
  libssl-dev, unixodbc-dev, libpq-dev,
  libncurses5-dev, libjpeg62-dev | libjpeg8-dev,
