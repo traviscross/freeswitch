@@ -3,13 +3,28 @@ SUBDIRS = . src
 AUTOMAKE_OPTIONS = foreign subdir-objects
 NAME = freeswitch
 
+if SYSTEM_APR
+AM_LIBAPR_CFLAGS := $(shell apr-1-config --cflags)
+AM_LIBAPR_CPPFLAGS := $(shell apr-1-config --cppflags --includes)
+AM_LIBAPR_LDFLAGS := $(shell apr-1-config --ldflags)
+AM_LIBAPR_LIBS := $(shell apr-1-config \--libs)
+AM_LIBAPR_LINKLIBTOOL := $(shell apr-1-config \--link-libtool)
+else
 AM_LIBAPR_CFLAGS := $(shell ./libs/apr/apr-1-config --cflags)
 AM_LIBAPR_CPPFLAGS := $(shell ./libs/apr/apr-1-config --cppflags --includes)
 AM_LIBAPR_LDFLAGS := $(shell ./libs/apr/apr-1-config --ldflags)
 AM_LIBAPR_LIBS := $(subst $(switch_srcdir)/,,$(shell ./libs/apr/apr-1-config \--libs))
+endif
+if SYSTEM_APRUTIL
+AM_LIBAPU_CPPFLAGS := $(shell apu-1-config --includes)
+AM_LIBAPU_LDFLAGS := $(shell apu-1-config --ldflags)
+AM_LIBAPU_LIBS := $(shell apu-1-config \--libs)
+AM_LIBAPU_LINKLIBTOOL := $(shell apu-1-config \--link-libtool)
+else
 AM_LIBAPU_CPPFLAGS := $(shell ./libs/apr-util/apu-1-config --includes)
 AM_LIBAPU_LDFLAGS := $(shell ./libs/apr-util/apu-1-config --ldflags)
 AM_LIBAPU_LIBS := $(subst $(switch_srcdir)/,,$(shell ./libs/apr-util/apu-1-config \--libs))
+endif
 
 AM_CFLAGS   = $(SWITCH_AM_CFLAGS) $(SWITCH_ANSI_CFLAGS) 
 AM_CPPFLAGS = $(SWITCH_AM_CXXFLAGS) -Ilibs/sofia-sip/libsofia-sip-ua/sdp -Ilibs/sofia-sip/libsofia-sip-ua/su
@@ -121,7 +136,18 @@ CORE_CFLAGS += -I$(switch_srcdir)/libs/srtp/crypto/include -Ilibs/srtp/crypto/in
 CORE_CFLAGS += -I$(switch_srcdir)/libs/spandsp/src -I$(switch_srcdir)/libs/tiff-4.0.2/libtiff
 
 APR_LIBS   = $(AM_LIBAPU_LIBS) $(AM_LIBAPR_LIBS)
-CORE_LIBS  = libs/apr-util/libaprutil-1.la libs/apr/libapr-1.la
+CORE_LIBS=
+if SYSTEM_APR
+CORE_LIBS += $(AM_LIBAPR_LINKLIBTOOL)
+else
+CORE_LIBS += libs/apr/libapr-1.la 
+endif
+if SYSTEM_APRUTIL
+CORE_LIBS += $(AM_LIBAPU_LINKLIBTOOL)
+else
+CORE_LIBS +=  libs/apr-util/libaprutil-1.la
+endif
+
 CORE_LIBS += $(PCRE_LIBS)
 CORE_LIBS += $(SPEEXDSP_LIBS) $(SPEEX_LIBS)
 CORE_LIBS += $(SQLITE_LIBS)

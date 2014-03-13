@@ -599,6 +599,11 @@ if test "x$have_libz" = "xyes"  ; then
 APR_ADDTO([PLATFORM_CORE_LIBS], [-lz])
 fi
 
+AC_CHECK_LIB(apr-1, apr_pool_mutex_set, use_system_apr=yes, use_system_apr=no)
+AM_CONDITIONAL([SYSTEM_APR],[test "${use_system_apr}" = "yes"])
+AC_CHECK_LIB(aprutil-1, apr_queue_pop_timeout, use_system_aprutil=yes, use_system_aprutil=no)
+AM_CONDITIONAL([SYSTEM_APRUTIL],[test "${use_system_aprutil}" = "yes"])
+
 AC_CHECK_LIB(jpeg, jpeg_std_error,, AC_MSG_ERROR([no usable libjpeg; please install libjpeg devel package or equivalent]))
 
 AC_CHECK_LIB(jbig, jbg_enc_out, have_libjbig=yes, have_libjbig=no)
@@ -1518,8 +1523,13 @@ fi
 if test "$with_system_pcre" = "no"; then
 	AC_CONFIG_SUBDIRS([libs/pcre])
 fi
-AC_CONFIG_SUBDIRS([libs/apr])
-AC_CONFIG_SUBDIRS([libs/apr-util])
+
+if test "$use_system_apr" != "yes"; then
+   AC_CONFIG_SUBDIRS([libs/apr])
+fi
+if test "$use_system_aprutil" != "yes"; then
+   AC_CONFIG_SUBDIRS([libs/apr-util])
+fi
 AC_CONFIG_SUBDIRS([libs/ilbc])
 if test "$ac_cv_use_system_curl" != "yes"; then
 	AC_CONFIG_SUBDIRS([libs/curl])
